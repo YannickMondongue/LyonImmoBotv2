@@ -1,5 +1,3 @@
 OpenAI
 streamlit
-get_system_prompt
-
 
