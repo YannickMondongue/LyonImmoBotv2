@@ -29,11 +29,11 @@ for message in st.session_state.messages:
 def execute_query(query: str):
     try:
         conn_str = (
-            f"postgresql+psycopg2://{st.secrets['connections']['postgresql']['user']}:"
-            f"{st.secrets['connections']['postgresql']['password']}@"
-            f"{st.secrets['connections']['postgresql']['host']}:"
-            f"{st.secrets['connections']['postgresql']['port']}/"
-            f"{st.secrets['connections']['postgresql']['database']}"
+            f"mssql+pyodbc://{st.secrets['connections']['sqlserver']['user']}:"
+            f"{st.secrets['connections']['sqlserver']['password']}@"
+            f"{st.secrets['connections']['sqlserver']['host']}:1433/"
+            f"{st.secrets['connections']['sqlserver']['database']}?"
+            "driver=ODBC+Driver+17+for+SQL+Server"
         )
         engine = create_engine(conn_str)
         with engine.connect() as connection:
@@ -65,12 +65,13 @@ if st.session_state.messages[-1]["role"] != "assistant":
         if sql_match:
             sql = sql_match.group(1).strip()
             conn_str = (
-                f"postgresql+psycopg2://{st.secrets['connections']['postgresql']['user']}:"
-                f"{st.secrets['connections']['postgresql']['password']}@"
-                f"{st.secrets['connections']['postgresql']['host']}:"
-                f"{st.secrets['connections']['postgresql']['port']}/"
-                f"{st.secrets['connections']['postgresql']['database']}"
+                f"mssql+pyodbc://{st.secrets['connections']['sqlserver']['user']}:"
+                f"{st.secrets['connections']['sqlserver']['password']}@"
+                f"{st.secrets['connections']['sqlserver']['host']}:1433/"
+                f"{st.secrets['connections']['sqlserver']['database']}?"
+                "driver=ODBC+Driver+17+for+SQL+Server"
             )
+             
             engine = create_engine(conn_str)
             with engine.connect() as connection:
                 try:

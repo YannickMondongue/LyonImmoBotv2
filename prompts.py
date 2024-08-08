@@ -354,9 +354,9 @@ Here are 9 critical rules for the interaction you must abide:
 ```sql
 (select 1) union (select 2)
 ```
-2. If I don't tell you to find a limited set of results in the sql query or question, you MUST limit the number of responses to 100.
-3. Text / string where clauses must be fuzzy match e.g ilike %keyword%
-4. Make sure to generate a single snowflake sql code, not multiple. 
+2. If I don't tell you to find a limited set of results in the sql query or question, you MUST limit the number of responses to 100. The syntax is "SELECT TOP 100"
+3. Text / string where clauses must be fuzzy match e.g like %keyword%
+4. Make sure to generate a single sql server code, not multiple. 
 5. You should only use the table columns given in <columns>, and the table given in <tableName>, you MUST NOT hallucinate about the table names
 6. DO NOT put numerical at the very front of sql variable.
 7. When you are asked a question relating to a place or arrondissement, such as: which secondary schools are in the 5th arrondissement, you must ALWAYS use the postcode in your SQL query to ensure that the information is reliable.
@@ -367,7 +367,7 @@ example: idstation with id_metro_a_moins_de_500m or id_metro_le_plus_proche_en_m
 
 </rules>
 
-Don't forget to use "ilike %keyword%" for fuzzy match queries (especially for variable_name column)
+Don't forget to use "like %keyword%" for fuzzy match queries (especially for variable_name column)
 and wrap the generated sql code with ``` sql code markdown in this format e.g:
 ```sql
 (select 1) union (select 2)
@@ -383,11 +383,11 @@ Then provide 3 example questions using bullet points.
 @st.cache_data(show_spinner="Loading 🏠 LyonImmoBot's context...")
 def get_table_context(table_name: str, table_description: str):
     conn_str = (
-        f"postgresql+psycopg2://{st.secrets['connections']['postgresql']['user']}:"
-        f"{st.secrets['connections']['postgresql']['password']}@"
-        f"{st.secrets['connections']['postgresql']['host']}:"
-        f"{st.secrets['connections']['postgresql']['port']}/"
-        f"{st.secrets['connections']['postgresql']['database']}"
+        f"mssql+pyodbc://{st.secrets['connections']['sqlserver']['user']}:"
+        f"{st.secrets['connections']['sqlserver']['password']}@"
+        f"{st.secrets['connections']['sqlserver']['host']}:1433/"
+        f"{st.secrets['connections']['sqlserver']['database']}?"
+        "driver=ODBC+Driver+17+for+SQL+Server"
     )
     engine = create_engine(conn_str)
     with engine.connect() as connection:
@@ -490,11 +490,11 @@ print(query)
 def execute_query(query: str):
     try:
         conn_str = (
-            f"postgresql+psycopg2://{st.secrets['connections']['postgresql']['user']}:"
-            f"{st.secrets['connections']['postgresql']['password']}@"
-            f"{st.secrets['connections']['postgresql']['host']}:"
-            f"{st.secrets['connections']['postgresql']['port']}/"
-            f"{st.secrets['connections']['postgresql']['database']}"
+            f"mssql+pyodbc://{st.secrets['connections']['sqlserver']['user']}:"
+            f"{st.secrets['connections']['sqlserver']['password']}@"
+            f"{st.secrets['connections']['sqlserver']['host']}:1433/"
+            f"{st.secrets['connections']['sqlserver']['database']}?"
+            "driver=ODBC+Driver+17+for+SQL+Server"
         )
         engine = create_engine(conn_str)
         with engine.connect() as connection:
@@ -517,10 +517,9 @@ else:
 # Example usage of the execute_query function
 def get_schools_in_lyon(arrondissement: str):
     query = f"""
-    SELECT nom, adresse, code_postal, commune
+    SELECT TOP 10 nom, adresse, code_postal, commune
     FROM {SCHEMA_PATH}.ecole_primaire_lyon
-    WHERE code_postal ILIKE '%{arrondissement}%' OR commune ILIKE '%{arrondissement}%'
-    LIMIT 10
+    WHERE code_postal LIKE '%{arrondissement}%' OR commune LIKE '%{arrondissement}%'
     """
     result = execute_query(query)
     if result.empty:
